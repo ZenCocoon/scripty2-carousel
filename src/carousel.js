@@ -63,6 +63,7 @@
       _updateScrollButton.call(this);
       _createSlider.call(this);
       _createPaginator.call(this);
+      _initSwipeSupport.call(this);
     }
 
     function isHorizontal() {
@@ -110,7 +111,8 @@
       } else if (this.options.cycle === 'loop') {
         this.goTo(this.elements.length - this.nbVisibleElements);
       }
-      event.stop();
+      if (!Object.isUndefined(event))
+        event.stop();
     }
 
     function _scrollNext(event) {
@@ -119,7 +121,8 @@
       } else if (this.options.cycle === 'loop') {
         this.goTo(0);
       }
-      event.stop();
+      if (!Object.isUndefined(event))
+        event.stop();
     }
 
     function _updateScrollButton() {
@@ -175,6 +178,29 @@
         this.paginator = new UI.Carousel.Paginator(this.options.paginator, this);
       }
     }
+
+    function _initSwipeSupport() {
+      if (this.options.swipe) {
+        var self = this;
+
+        this.container.observe('mousedown', function(event) {
+          event.element()._panX = 0;
+          event.element()._panY = 0;
+          var manipulationEventHandler = self.container.on('manipulate:update', function(event) {
+            var pan = self.options.orientation == 'horizontal' ? event.memo.panX : event.memo.panY
+
+            if (pan < - self.options.swipeSensibility) {
+              manipulationEventHandler.stop();
+              _scrollNext.call(self);
+            } else if (pan > self.options.swipeSensibility) {
+              manipulationEventHandler.stop();
+              _scrollPrev.call(self);
+            }
+          });
+        });
+      }
+    }
+
     // Publish public methods
     return {initialize:           initialize,
             isHorizontal:         isHorizontal,
@@ -198,7 +224,9 @@
       fxOption:          {duration: 0.75, transition: S2.FX.Transitions.easeInOutExpo},
       slider:            null,
       paginator:         null,
-      cycle:             null // Accepted value is only "loop" so far
+      cycle:             null, // Accepted value is only "loop" so far
+      swipe:             null,
+      swipeSensibility:  10
     }
   });
   
