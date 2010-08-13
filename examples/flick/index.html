@@ -5,7 +5,7 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 
-	<title>Swipe Example</title>
+	<title>Flick Example</title>
 	<link rel="stylesheet" href="simple.css" type="text/css" />
 	<link rel="stylesheet" href="../../themes/default/theme.css" type="text/css" />
 	<link rel="stylesheet" href="../../themes/default/ui.carousel.css" type="text/css" />
@@ -16,7 +16,7 @@
   <a href="http://github.com/sgruhier/scripty2-carousel"><img style="position: absolute; top: 0; left: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_left_darkblue_121621.png" alt="Fork me on GitHub" /></a>
   <div id="container">
     <h1>Prototype Carousel Examples</h1>
-    <h2>Horizontal with swipe support</h2>
+    <h2>Horizontal with flick support</h2>
     <div id="hcarousel" class="ui-carousel-horizontal">
       <div class="ui-carousel-prev ui-state-disabled"><a href="#" onclick="return false">&lt;</a></div>
       <div class="ui-carousel-container">
@@ -39,11 +39,11 @@
     </div>
     <hr/>
     <h3>Javascript code</h3>
-    <script src="http://gist.github.com/521831.js?file=gistfile1.js"></script>
+    <script src="http://gist.github.com/522615.js?file=gistfile1.js"></script>
     <h3>HTML Markup</h3>
     <script src="http://gist.github.com/371224.js?file=gistfile1.html"></script>
     
-    <h2>Vertical with swipe support</h2>
+    <h2>Vertical with flick support</h2>
     <div id="vcarousel" class="ui-carousel-vertical">
       <div class="ui-carousel-prev ui-state-disabled"><a href="#" onclick="return false">Previous</a></div>
       <div class="ui-carousel-container">
@@ -66,7 +66,7 @@
     </div>
     <hr/>
     <h3>Javascript code</h3>
-    <script src="http://gist.github.com/521833.js?file=gistfile1.js"></script>
+    <script src="http://gist.github.com/522616.js?file=gistfile1.js"></script>
     <h3>HTML Markup</h3>
     <script src="http://gist.github.com/371236.js?file=gistfile1.html"></script>
   </div>
@@ -77,8 +77,8 @@
   
   <script type="text/javascript">
     S2.enableMultitouchSupport = true;
-    new S2.UI.Carousel("hcarousel", {swipe: true});
-    new S2.UI.Carousel("vcarousel", {swipe: true, orientation: 'vertical'});
+    new S2.UI.Carousel("hcarousel", {flick: true});
+    new S2.UI.Carousel("vcarousel", {flick: true, orientation: 'vertical'});
   </script>
 </body>
 </html>

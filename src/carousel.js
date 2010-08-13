@@ -63,7 +63,7 @@
       _updateScrollButton.call(this);
       _createSlider.call(this);
       _createPaginator.call(this);
-      _initSwipeSupport.call(this);
+      _initFlickSupport.call(this);
     }
 
     function isHorizontal() {
@@ -179,26 +179,40 @@
       }
     }
 
-    function _initSwipeSupport() {
-      if (this.options.swipe) {
+    function _initFlickSupport() {
+      if (this.options.flick) {
         var self = this;
 
-        this.container.observe('mousedown', function(event) {
+        this.container.observe(_getFlickEventStart.call(this), function(event) {
           event.element()._panX = 0;
           event.element()._panY = 0;
           var manipulationEventHandler = self.container.on('manipulate:update', function(event) {
             var pan = self.options.orientation == 'horizontal' ? event.memo.panX : event.memo.panY
 
-            if (pan < - self.options.swipeSensibility) {
+            if (pan < - self.options.flickSensibility) {
               manipulationEventHandler.stop();
               _scrollNext.call(self);
-            } else if (pan > self.options.swipeSensibility) {
+            } else if (pan > self.options.flickSensibility) {
               manipulationEventHandler.stop();
               _scrollPrev.call(self);
             }
           });
         });
       }
+    }
+    
+    function _getFlickEventStart() {
+      try {
+        document.createEvent("TransformActionEvent");
+        return 'transformactionstart';
+      } catch(e) {}
+
+      try {
+        document.createEvent("TouchEvent");
+        return 'touchstart';
+      } catch(e) {}
+
+      return 'mousedown';
     }
 
     // Publish public methods
@@ -225,8 +239,8 @@
       slider:            null,
       paginator:         null,
       cycle:             null, // Accepted value is only "loop" so far
-      swipe:             null,
-      swipeSensibility:  10
+      flick:             null,
+      flickSensibility:  10
     }
   });
   
