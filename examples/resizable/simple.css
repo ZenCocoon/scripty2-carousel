@@ -105,6 +105,10 @@ hr {
 }
 
 /* Horizontal navigation */
+#hcarousel.ui-carousel-horizontal .ui-state-hover {
+  border: none;
+}
+
 #hcarousel.ui-carousel-horizontal .ui-carousel-prev a,
 #hcarousel.ui-carousel-horizontal .ui-carousel-next a {
   background: #6CF;
