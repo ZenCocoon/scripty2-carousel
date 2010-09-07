@@ -1,22 +1,22 @@
 (function(UI) {
   var SlideEffect = Class.create(S2.FX.Base, {
-    initialize: function($super, carousel){
-			$super(carousel.options.fxOption);
+    initialize: function($super, carousel) {
+      $super(carousel.options.fxOption);
       this.element = carousel.getContainer();
     },
-    update: function(position){
+    update: function(position) {
       this.operator.render(position);
       this.element.fire("carousel:position:changed", {position:position});
     },
-    setup: function(){
+    setup: function() {
       this.element.fire('carousel:sliding:start');
     },
-    teardown: function(){
+    teardown: function() {
       this.operator = null;
       this.element.fire('carousel:sliding:stop');
     },
-    play: function($super, style){
-      if (this.state == 'running'){
+    play: function($super, style) {
+      if (this.state == 'running') {
         this.cancel();
       }
       this.operator = new S2.FX.Operators.Style(this, this.element, {style: style}, this.options);
@@ -41,19 +41,9 @@
       if (this.prev)
         this.next.observe('click', scrollNext.bind(this));
 
-      // Pre-compute values depending of carousel's orientation
-      if (this.isHorizontal()) {
-        this.elementSize = this.elements.first().getWidth();
-        this.containerSize = this.container.up().getWidth();    
-        this.attribute = 'left';
-      } else {
-        this.elementSize = this.elements.first().getHeight();
-        this.containerSize = this.container.up().getHeight();    
-        this.attribute = 'top';
-      }
-      this.nbVisibleElements = Math.floor(this.containerSize / this.elementSize);
-      this.maxPos            = this.elements.length - this.nbVisibleElements;
+      _compute.call(this);
 
+      this.root.observe('carousel:updateSize', _updateSize.bind(this));
       this.container.observe('carousel:sliding:stop', _updateScrollButton.bind(this));
 
       _updateScrollButton.call(this);
@@ -85,7 +75,7 @@
     function goTo(position, withoutFx) {
       var pos   = - position.constrain(0, this.maxPos) * this.elementSize,
           style = 'margin-' + this.attribute + ':' + pos + 'px';
-            
+
       if (withoutFx) {
         this.container.setStyle(style);
         this.container.fire("carousel:position:changed", {position:position});
@@ -124,6 +114,44 @@
     }
 
     // Private methods
+    function _compute() {
+      // Pre-compute values depending of carousel's orientation
+      if (this.isHorizontal()) {
+        this.elementSize = this.elements.first().getWidth();
+        this.containerSize = this.container.up().getWidth();
+        this.attribute = 'left';
+      } else {
+        this.elementSize = this.elements.first().getHeight();
+        this.containerSize = this.container.up().getHeight();
+        this.attribute = 'top';
+      }
+      this.nbVisibleElements = Math.floor(this.containerSize / this.elementSize);
+      this.maxPos            = this.elements.length - this.nbVisibleElements;
+    }
+
+    function _updateSize() {
+      var carouselSize = this.isHorizontal() ? this.root.getWidth() : this.root.getHeight(),
+          uiSize = 0;
+
+      if (!this.options.paginator && !this.options.slider) {
+        if (this.next) {
+          uiSize += this.isHorizontal() ? this.next.getWidth() : this.next.getHeight();
+        }
+        if (this.prev) {
+          uiSize += this.isHorizontal() ? this.prev.getWidth() : this.next.getHeight();
+        }
+      }
+      if (this.isHorizontal()) {
+        this.container.up().setStyle({width: carouselSize - uiSize + 'px'});
+      } else {
+        this.container.up().setStyle({height: carouselSize - uiSize + 'px'});
+      }
+
+      _compute.call(this);
+
+      this.goToRelative(this.getRelativePosition().constrain(0, 1), true);
+    }
+
     function _updateScrollButton() {
       // Buttons are always active if cycle option is activated
       if (this.options.cycle) {
@@ -223,27 +251,45 @@
 
     // Private methods
     function _createUI() {
-      var nbPages = Math.ceil(this.carousel.elements.length / this.carousel.nbVisibleElements);
       this.ul = this.element.down('ul') || new Element('ul');
-
-      var fragment = document.createDocumentFragment();
-
-      for (var i=0; i<nbPages; i++) {
-        fragment.appendChild(new Element('li').addClassName('ui-icon ui-icon-bullet').update(i+1));
-      }
-
-      this.ul.appendChild(fragment)
-
       if (!this.ul.parentNode) {
         this.element.insert(this.ul);
       }
+
       this.lis = this.ul.select('li');
+
       _update.call(this);
     }
 
+    function _refreshUI() {
+      var diff = Math.ceil(this.carousel.elements.length / this.carousel.nbVisibleElements) - this.lis.length;
+
+      if (diff != 0) {
+        if (diff > 0) {
+          this.ul.appendChild(_createLis.call(this, diff));
+        }
+        while (diff < 0) {
+          this.ul.down('li').remove();
+          diff++;
+        }
+        this.lis = this.ul.select('li');
+      }
+    }
+
     function _update(event) {
+      _refreshUI.call(this);
       this.lis.invoke('removeClassName', 'ui-state-active');
-      this.lis[_currentPage.call(this)].addClassName('ui-state-active')
+      this.lis[_currentPage.call(this)].addClassName('ui-state-active');
+    }
+
+    function _createLis(nb) {
+      var fragment = document.createDocumentFragment();
+
+      for (var i = 0; i < nb; i++) {
+        fragment.appendChild(new Element('li').addClassName('ui-icon ui-icon-bullet').update(i + 1));
+      }
+
+      return fragment;
     }
 
     function _currentPage() {
