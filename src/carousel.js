@@ -2,11 +2,12 @@
   var SlideEffect = Class.create(S2.FX.Base, {
     initialize: function($super, carousel) {
       $super(carousel.options.fxOption);
+      this.carousel = carousel;
       this.element = carousel.getContainer();
     },
     update: function(position) {
       this.operator.render(position);
-      this.element.fire("carousel:position:changed", {position:position});
+      this.element.fire("carousel:position:changing", {position: position});
     },
     setup: function() {
       this.element.fire('carousel:sliding:start');
@@ -14,6 +15,7 @@
     teardown: function() {
       this.operator = null;
       this.element.fire('carousel:sliding:stop');
+      this.element.fire("carousel:position:changed", {position: this.carousel.getPosition()});
     },
     play: function($super, style) {
       if (this.state == 'running') {
@@ -44,7 +46,7 @@
       _compute.call(this);
 
       this.root.observe('carousel:updateSize', _updateSize.bind(this));
-      this.container.observe('carousel:sliding:stop', _updateScrollButton.bind(this));
+      this.container.observe('carousel:position:changed', _updateScrollButton.bind(this));
 
       _updateScrollButton.call(this);
       _createSlider.call(this);
@@ -78,8 +80,7 @@
 
       if (withoutFx) {
         this.container.setStyle(style);
-        this.container.fire("carousel:position:changed", {position:position});
-        _updateScrollButton.call(this);
+        this.container.fire("carousel:position:changed", {position: position});
       } else {
         this.effect.play(style);
       }
@@ -189,7 +190,7 @@
         this.slider = new S2.UI.Slider(this.options.slider, 
                                        {onSlide: update, onChange: update, orientation: this.options.orientation});
 
-        this.getContainer().observe('carousel:position:changed', function(event) {
+        this.getContainer().observe('carousel:position:changing', function(event) {
           if (ignoreEvent) {
             ignoreEvent = false;
           }
