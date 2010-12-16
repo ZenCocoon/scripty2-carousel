@@ -66,6 +66,7 @@
     }
 
     function getPosition() {
+      // FIXME: Must consider new position when moved due to hashtag change
       var pos = - parseFloat(this.container.getStyle("margin-" + this.attribute));
       return pos / this.elementSize;
     }
