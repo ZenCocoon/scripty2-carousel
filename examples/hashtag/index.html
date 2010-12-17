@@ -81,6 +81,26 @@
     
     $('update').on('click', function(event) {
       event.stop();
+      
+      // FIXME: Must fix Element.Relativize or even better add Element.undoAbsolutize before finishing this patch
+      console.debug(hcarousel.container);
+      
+      var l = new Element.Layout(hcarousel.container);
+      console.debug(l.get('left'));
+      console.debug(l.get('padding-left'));
+      console.debug(l.get('border-left'));
+      console.debug(l.get('margin-left'));
+      
+      hcarousel.container.absolutize();
+      
+      var l = new Element.Layout(hcarousel.container);
+      console.debug(l.get('left'));
+      console.debug(l.get('padding-left'));
+      console.debug(l.get('border-left'));
+      console.debug(l.get('margin-left'));
+      
+      hcarousel.container.relativize();
+      
       hcarousel.container.fire('carousel:position:changed');
     });
     
